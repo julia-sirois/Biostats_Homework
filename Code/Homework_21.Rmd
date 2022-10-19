@@ -1,0 +1,96 @@
+---
+title: "GSWR Ch4"
+output: html_notebook
+---
+
+## Introduction
+This assignment walks through Chapter 4: Visualizing Your Data in the Getting Started With R textbook.
+
+### Getting Started
+Generate code to activate the correct packages and clear R's brain.
+
+```{r}
+rm(list = ls())
+library(dplyr)
+library(ggplot2)
+library(here)
+```
+
+Pull in data
+
+```{r}
+Compensation <- read.csv(here("Data", "compensation.csv"), stringsAsFactors = TRUE)
+```
+
+### Practice with scatterplots
+
+```{r}
+ggplot(Compensation, aes(x = Root, y = Fruit)) + geom_point() #creates a basic scatterplot
+```
+
+### Customizing plots
+With the basic plot generated above, the background is grey. One way to remove this is with there theme_bw() function.
+
+```{r}
+ggplot(Compensation, aes(x = Root, y = Fruit)) + geom_point() + theme_bw() #generates a scatterplot without a grey background.
+```
+
+The size of the points can be changed by adding a value to the function geom_point() 
+
+```{r}
+ggplot(Compensation, aes(x = Root, y = Fruit)) + geom_point(size = 5) + theme_bw()
+```
+
+The axis labels can be altered using xlab() and ylab()
+
+```{r}
+ggplot(Compensation, aes(x = Root, y = Fruit)) + geom_point(size = 5) + xlab("Root Biomass") + ylab("Fruit Production") + theme_bw()
+```
+
+The colors of points that match a specific group can be adjusted to represent levels with the group.
+
+```{r}
+ggplot(Compensation, aes(x = Root, y = Fruit, colour = Grazing)) + geom_point(size = 5) + xlab("Root Biomass") + ylab("Fruit Production") + theme_bw()
+```
+
+Similarly to the color changing, the shape of the points can also be changed using the same format as the previous graph.
+
+```{r}
+ggplot(Compensation, aes(x = Root, y = Fruit, shape = Grazing)) + geom_point(size = 5) + xlab("Root Biomass") + ylab("Fruit Production") + theme_bw()
+```
+
+### Practice with Box-and-whisker plots 
+
+Setting up a basic box plot
+
+```{r}
+ggplot(Compensation, aes(x = Grazing, y = Fruit)) + geom_boxplot() + xlab("Grazing treatment") + ylab("Fruit Production") + theme_bw()
+```
+
+Box plots can be customized 
+
+```{r}
+ggplot(Compensation, aes(x = Grazing, y = Fruit)) + geom_boxplot() + geom_point(size = 4, colour = 'lightgrey', alphs = 0.5) + xlab("Grazing treatment") + ylab("Fruit Production") + theme_bw()
+```
+
+### Practice with Histograms
+
+Generate histograms of fruit production using the generic composition
+
+```{r}
+ggplot(Compensation, aes(x = Fruit)) + geom_histogram()
+```
+
+The result of the generic histogram does not fit the dataset well and is visually unappealing. It can be fixed by specifying the bin width.
+
+```{r}
+ggplot(Compensation, aes(x = Fruit)) + geom_histogram(binwidth = 15)
+```
+
+You can also generate more than one histogram using the facet_wrap() function
+
+```{r}
+ggplot(Compensation, aes(x = Fruit)) + geom_histogram(binwidth = 15) + facet_wrap(~Grazing)
+```
+
+Woohoo Graphs!
