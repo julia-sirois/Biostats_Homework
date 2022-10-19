@@ -1,0 +1,50 @@
+---
+title: "Sirois_Ch2_Pt1.Rmd"
+author: "Julia Sirois"
+date: "9/18/2022"
+output: html_document
+---
+
+## Introduction
+This analysis covers a dataset about compensation. 
+
+### Importing dataset
+The first step is to import our data. We can do this by using the Import Dataset tool in the Environment bar.
+```{r}
+library(readr) #turns on readr package
+compensation <- read_csv("Data/compensation.csv") #specifies file path to data
+```
+
+### Here are a few functions to keep in mind:
+```{r}
+names(compensation) #tells the variable names in the dataset that is specified in the parentheses
+```
+
+```{r}
+head(compensation) #pulls the first six rows of the dataset.
+```
+
+```{r}
+dim(compensation) #tells you the dimension of the dataset/ the number of rows and columns
+```
+
+```{r}
+str(compensation) #returns several pieces of information about the objects
+```
+
+### dplyr viewing of data
+
+```{r}
+library(dplyr) #turns on dplyr package
+```
+
+### glimpse and tbl_df
+
+```{r}
+glimpse(compensation) #provides a horizontal view of the data
+```
+
+```{r}
+tbl_df(compensation) #provides a vertical view of the data
+```
+

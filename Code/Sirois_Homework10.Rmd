@@ -1,0 +1,25 @@
+---
+title: "Sirois_Homework10.Rmd"
+author: "Julia Sirois"
+date: "9/22/2022"
+output: html_document
+---
+
+This homework will be practicing using the functions 'read.csv' and 'stringsAsFactors'
+
+First let's set up a function to clear R's brain and the activate a few packages.
+
+```{r}
+rm(list = ls())
+library(dplyr)
+library(ggplot2)
+library(here)
+```
+
+Now let's pull in our data
+
+```{r}
+DF <- read.csv(here("Data", "squirrels.csv"), stringsAsFactors = TRUE)
+glimpse(DF)
+```
+

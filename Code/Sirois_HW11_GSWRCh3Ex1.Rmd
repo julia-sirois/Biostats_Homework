@@ -1,0 +1,141 @@
+---
+title: "Sirois_HW11_GSWR3Ex1.Rmd"
+author: "Julia Sirois"
+date: "9/26/2022"
+output: html_document
+---
+
+### Introduction
+
+In this exercise we will be practicing new functions using a compensation dataset focuses on the production of fruit. 
+
+First, let's set things up
+
+```{r}
+rm(list = ls())
+library(dplR)
+library(ggplot2)
+library(here)
+```
+
+Now let's pull in our data!
+
+```{r}
+DF <- read.csv(here("Data", "compensationdataset.csv"), stringsAsFactors = TRUE)
+glimpse(DF) #checking the dataset
+```
+
+Now let's get a summary for the compensastion variables.
+
+```{r}
+summary(DF)
+```
+
+We are now going to practice subsetting.
+
+```{r}
+names(DF)
+select(DF, Fruit) #we are looking at the Fruit column.
+```
+
+We can also use the select() function to pull up all columns except one. Let's practice by leaving out the 'Root' column.
+
+```{r}
+select(DF, -Root) #that is a minus sign
+```
+
+The slice() function grabs rows of data.
+
+```{r}
+slice(DF, 2)
+```
+
+We can also slice a range of rows by using a :
+
+```{r}
+slice(DF, 2:10)
+```
+
+You can also collect the row numbers using the function c()
+
+```{r}
+slice(DF, c(2, 3, 10))
+```
+
+The filter() function is another useful subsetting. We will first use the with() function to ask R to look at the dataframe, do what comes next, and then stop looking. 
+
+```{r}
+with(DF, Fruit > 80) #the > is a logical that produces a sequence of TRUE and FALSE.
+```
+
+Now let's use filter(). Let's find the rows where it is true that Fruit is >80 return.
+
+```{r}
+filter(DF, Fruit > 80)
+```
+
+We can easily select rows according to multiple conditions. 
+
+```{r}
+filter(DF, Fruit > 80 | Fruit < 20) # | is a symbol that indicates 'or'
+```
+
+We need to make sure we can use the subset of our data.
+
+```{r}
+lo_hi_fruit <- filter(DF, Fruit > 80 | Fruit < 20) #creates saved subset
+lo_hi_fruit #views subset
+```
+
+# What does the composition look like now?
+```{r}
+head(DF) #opens first 6 rows of the new DF
+```
+
+We are now going to use mutate()
+
+```{r}
+DF <- mutate(DF, logFruit = log(Fruit))
+```
+
+Let's look at the first six rows again.
+
+```{r}
+head(DF)
+```
+
+It is also possible to sort our data. Let's practice by using the arrange() function.
+
+```{r}
+arrange(DF, Fruit)
+```
+
+Root values from Fruit > 80 subset
+
+```{r}
+select(filter(DF, Fruit > 80), Root)
+```
+
+There are multiple ways to summerize our data. Let's go over a couple of them.
+
+Method 1: Nested, no pipe
+```{r}
+summarise(group_by(DF, Grazing) , meanFruit = mean(Fruit))
+```
+
+Method 2: Pipe, no nesting
+
+```{r}
+DF %>%
+group_by(Grazing) %>%
+  summarize(meanFruit = mean(Fruit))
+```
+
+Summarizing and extending summarization
+
+```{r}
+DF %>%
+group_by(Grazing) %>%
+  summarise(meanFruit = mean(Fruit), sdFruit = sd(Fruit))
+```
+

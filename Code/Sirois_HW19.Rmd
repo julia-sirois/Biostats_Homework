@@ -1,0 +1,71 @@
+---
+title: "Practicing dplyr"
+author: "Julia Sirois"
+date: "10/12/2022"
+output: html_document
+---
+
+# Introduction
+The following exercise is to revisit functions learned in Chapters 2 and 3.
+
+Getting set up
+```{r}
+rm(list= ls()) #clears R's Brain
+library(dplyr) #library() actives the specified package
+library(here)
+library(ggplot2)
+```
+
+Pulling in the data
+
+```{r}
+Leaves <- read.csv(here("Data", "Class_leaf_measurements.csv"), stringsAsFactors = TRUE) 
+```
+
+```{r}
+str(Leaves) #pulls the structure of the data
+```
+
+## Cleaning up the data
+
+```{r}
+names(Leaves) #pulls the column headings
+```
+Fix errors (spaces and special characters) in column headings
+
+```{r}
+colnames(Leaves) <- c("Tree_num", "Species", "Leaf_num", "DBH_cm", "Petiole_length", "Total_length_cm", "Middle_lobe_length_cm", "Middle_lobe_width_cm", "Person") #reassigns column headings
+```
+
+Fix inconsistencies the species column
+
+There should only be three species options, however, there is inconsistent data formatting within the species columns. 
+
+Valid inputs will be Red Maple, Sugar Maple, and Norway Maple
+
+```{r}
+str(Leaves) #Look at the structure again
+Leaves$Species = as.factor(Leaves$Species) #converts to categorical values
+levels(Leaves$Species) #pulls the levels for the specified column
+
+```
+Now fix the miss spellings and improper capitalizations to give the column 'Species' only 3 levels
+
+```{r}
+levels(Leaves$Species) <- list("Norway Maple" = "Norway maple", "Norway Maple" = "Norway mapel", "Norway Maple" = "Norway Maple", "Red Maple" = "red maple", "Red Maple" = "Red maple", "Red Maple" = "Red Maple", "Sugar Maple" = "sugar maple", "Sugar Maple" = "Sugar maple", "Sugar Maple" = "Sugar Maple") #groups the data into the desired levels
+levels(Leaves$Species) #check to see if it worked
+```
+
+With the data fixed, subsets can be created
+
+```{r}
+Sugar <- filter(Leaves, Species == "Sugar Maple") #creates a subset 
+Sugar <- select(Sugar, -Person, -Leaf_num, -Tree_num)
+```
+
+Now create a histogram of the petiole lengths from the Sugar subset
+
+```{r}
+ggplot(Sugar, aes(x = Petiole_length)) + geom_histogram()
+```
+

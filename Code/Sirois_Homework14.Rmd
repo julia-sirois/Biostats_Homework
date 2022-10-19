@@ -1,0 +1,62 @@
+---
+title: "Fixing mistakes with dplyr"
+author: "Julia Sirois"
+date: "10/2/2022"
+output: html_document
+---
+
+## Introduction
+This assignment is intended to help practice the functions in the dpylr package and how to fix errors when they arise
+
+### Getting started 
+Turning on the correct packages and clearing R's mind is the first step.
+
+```{r}
+rm(list = ls()) #clears r's brain
+library(dplyr) #turns on package
+library(here)
+```
+
+### Pulling in data
+Use the here() function to pull in the correct data file. Do not use stringsAsFactors. 
+
+```{r}
+DF <- read.csv(here("Data", "drug_resistance.csv")) #Assigns the title 'DF' to the dataframe and pulls in the correct dataset.
+summary(DF) #provides a summary of 'DF'
+```
+
+Now upload the data again but with stringsAsFactors = TRUE.
+
+```{r}
+DF <- read.csv(here("Data", "drug_resistance.csv"), stringsAsFactors = TRUE)
+summary(DF)
+```
+Usings stringsAsFactors = TRUE causes the summary() function to read the qualitative inputs as valid variables whereas without stringsAsFactors = TRUE the summary() function just summarizes them as characters.
+
+### Using other functions
+Using the levels() function, pulls the levels attribute for a variable.
+
+```{r}
+levels(DF$Treatment)
+levels(DF$Plate_n)
+levels(colony.count)
+levels(tech.name)
+```
+There are errors for 'colony.count' and 'tech.name'. This is likely due to the '.' in the column headings which indicates there is a space within it.
+Change the column names may fix the issue.
+
+```{r}
+colnames(DF) <- c("Treatment", "Plate_num", "Colony_count", "Tech_name") #changes the column headings
+names(DF) #pulls up the column headings
+```
+
+Now that the column headings has been fixed, run the levels() function again to see if the error still occurs.
+
+```{r}
+levels(DF$Treatment)
+levels(DF$Plate_num)
+levels(DF$Colony_count)
+levels(DF$Tech_name)
+```
+
+The error has been resolved. 

@@ -1,0 +1,61 @@
+---
+title: "Sirois_Homework12.Rmd"
+author: "Julia Sirois"
+date: "9/27/2022"
+output: html_document
+---
+
+During this homework, students are required to work with a new dataset and apply new skills learned in RStudio.
+
+The first step is to set up.
+
+```{r}
+rm(list = ls()) #clears R's brain
+library(dplyr) #library() turns on the specified packages
+library(ggplot2)
+library(here)
+```
+
+Get the data 
+
+```{r}
+Cover <- read.csv(here("Data", "Cover.csv"), stringsAsFactors = TRUE) #pulls in and names the data
+summary(Cover) #gives us a quick summary of the data.
+```
+
+Check out the data using different functions
+
+```{r}
+names(Cover) #pulls up the column headings
+slice(Cover, c(2,9,12,20)) #pulls up specified rows of data
+```
+
+The average percent of cover was determined to be 77.5% for the Bare type.
+
+```{r}
+Bare <- filter(Cover, Site == "Donnerville 1", Type == "Bare")
+summary(Bare)
+```
+
+
+Next, the average percent cover was determined to be 2.5% for the Bryophytes type using the same coding process.
+
+```{r}
+Bryophytes <- filter(Cover, Site == 'Donnerville 1', Type == 'Bryophytes')
+summary(Bryophytes)
+```
+
+Finally, the average percent determined to be 20% for the Vascular type using the same process as mentioned before.
+
+```{r}
+Vascular <- filter(Cover, Site == 'Donnerville 1', Type == 'Vascular')
+summary(Vascular)
+```
+
+The Vascular plant cover percentage was also calculated for all sites. The vascular cover is 16.67% on average across all sites.
+
+```{r}
+Vascular_all <- filter(Cover, Type == "Vascular")
+summary(Vascular_all)
+```
+

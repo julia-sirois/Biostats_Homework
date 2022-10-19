@@ -1,0 +1,52 @@
+---
+title: "Applying more dplyr"
+author: "Julia Sirois"
+date: "9/30/2022"
+output: html_document
+---
+
+## Introduction
+Dplyr is one of the most useful packages in RStudio. Knowing which functions are in this packages and understanding how to apply them will make analyzing data easier. The goal of this assignment is to write code that will rename column headings, generate data subsets, genreate uniform dates, and to practice using a scientific dialogue to create an R Markdown script that is easy to follow.
+
+### Getting started
+The first step with any Rmd is to write code that clears R's brain and activates the packages necessary.
+
+```{r}
+rm(list = ls()) #Clears R's brain
+library(dplyr) #Turns on packages
+library(here)
+```
+
+### Pulling in data
+After activating the packages that will be used, the dataset that will be worked with is pulled in using the here() function.
+
+```{r}
+DF <- read.csv(here("Data", "day_one_data_for_homework13.csv"), stringsAsFactors = TRUE) #Pulls in data and assigns a title.
+glimpse(DF) #gives a quick look at the data set
+```
+
+### Renaming column headings
+Sometimes the imported data has mistakes in its column headings that need to be adjusted. 
+
+```{r}
+names(DF) #pulls up the column headings
+```
+
+The . in multiple column headings need to be fixed.
+
+```{r}
+colnames(DF) <- c("Name", "Date", "Part", "Tree_num", "Species", "leaf_length", "leaf_width", "leaf_units")
+```
+
+There were two units of measurements used during the data collection. A subset of just the measurements recorded in inches was created.
+
+```{r}
+English <- DF %>% filter(leaf_units == "inches")
+```
+
+Data entries with the same data format were collected into a subset.
+
+```{r}
+Uniform_dates <- DF %>% filter(Date == "8/24/2022")
+```
+

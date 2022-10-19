@@ -1,0 +1,83 @@
+---
+title: "Sirois_Ch2_Pt2"
+author: "Julia Sirois"
+date: "9/18/2022"
+output: html_document
+---
+
+## Introduction
+This analysis looks at a dataset called "nasty format"
+
+### Getting started
+The first step is to import the data
+
+```{r}
+library(readr) #turns on readr package
+nasty_format <- read_csv("Data/nasty format.csv") #specifies the file pathway for the dataset
+```
+
+Now we will assign the variable "nasty.format" to the data file.
+```{r}
+read.csv("Data/nasty format.csv") #reads the file we wish to associate to a variable
+```
+
+```{r}
+nasty.format <- read.csv("Data/nasty format.csv") #assigns the variable
+```
+
+We can now type in the variable we assigned to the data while running different functions.
+```{r}
+str(nasty.format) #returns several pieces of information about the dataset
+```
+
+We can remove unwanted rows of data with the 'filter()' function. 
+```{r}
+library(dplyr) #turns on dplyr package
+nasty.format <- filter(nasty.format, Bottle != "") #filters the data
+glimpse(nasty.format) #provides a horizontal view of the data
+```
+
+Now we are going to tidy the data. We can do this with the function 'gather()'
+
+```{r}
+library(tidyr) #turns on tidyr package
+tidy_data <- gather(nasty.format, Date, Abundance, 4:11) #tidies the data based on variables specified in the parentheses.
+```
+
+We will now use 'str()' and 'glimpse()' to see if it worked.
+
+```{r}
+str(tidy_data) #provides us with information about the dataset
+glimpse(tidy_data) #provides horizontal view of data
+```
+
+### Cleaning the dates
+We will now clean up the dates within the dataset by removing the X by using the function 'sub_str()'
+
+
+
+```{r}
+library(stringr) #turns on stringr package
+tidy_data <- mutate(tidy_data, Date = substr(Date, 2, 20)) #removes unwanted variables from date
+```
+
+```{r}
+unique(tidy_data$Date) #pulls up date values
+```
+
+```{r}
+library(lubridate) #turns on lubridate package
+tidy_data <- mutate(tidy_data, Date = dmy(Date)) #generates a new date organization method.
+```
+
+```{r}
+glimpse(tidy_data) #provides horizontal view of data 
+```
+
+Now we can generate plots for our tidied data.
+
+```{r}
+library (ggplot2) #turns on ggplot2 package
+ggplot(data = tidy_data, aes(x=Date, y=Abundance)) + geom_point() + facet_wrap(~Bottle)
+```
+
