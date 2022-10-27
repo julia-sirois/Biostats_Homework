@@ -55,7 +55,8 @@ ggplot(soil, aes(x = Field.Name, y = Ca.ppm)) + geom_point(size = 3) + xlab("Fie
 Create a boxplot for Ca ppm
 
 ```{r}
-ggplot(soil, aes(x = Field.Name, y = "Ca.ppm")) + geom_boxplot() + geom_point(size = 4, colour = 'lightgrey', alpha = 0.5) + xlab("Field Name") + ylab("Ca ppm") + theme_bw()
+ggplot(soil, aes(x = Field.Name, y = "Ca.ppm")) + 
+  geom_boxplot() + geom_point(size = 4, colour = 'lightgrey', alpha = 0.5) + xlab("Field Name") + ylab("Ca ppm") + theme_bw()
 ```
 
 Create a histogram for Ca ppm
