@@ -1,0 +1,265 @@
+---
+title: "Homework 23"
+output: html_notebook
+---
+
+# Introduction
+We'd like to ask the following questions from these data:
+1. Is there a relationship between Soil organic matter (SOM, %) and soil calcium (Ca_ppm)?
+
+2. Does the abundance of worms differ between Donnerville and the Kip Tract?
+
+3. Does the abundance of soil Magnesium (Mg_ppm) differ between Peavine and South Hammond?
+
+4. Does the abundance of zinc (Zn_ppm) differ among forests?
+
+## Getting set up
+```{r}
+rm(list = ls())
+library(tidyverse)
+library(here)
+library(ggfortify)
+```
+
+## Pull in the data
+
+```{r}
+soil <- read.csv(here("Data", "soil_reduced-1.csv"), stringsAsFactors = TRUE)
+```
+
+## Check out data for any errors before beginning analysis
+
+A. Forest names
+```{r}
+levels(soil$Forest)
+```
+
+B. Soil organic matter
+Start with a histogram for SOM
+
+```{r}
+ggplot(soil, aes(x = SOM_percent)) + 
+  geom_histogram()
+```
+
+Soil calcium
+```{r}
+ggplot(soil, aes(x = Ca_ppm)) +
+  geom_histogram()
+```
+
+Run a summary of these variables
+```{r}
+summary(soil)
+```
+
+### Question 1. Is there a relationship between Soil organic matter (SOM, %) and soil calcium (Ca_ppm)?
+
+Both variables are continuous 
+Make a scatterplot
+
+#### Plot relationship
+```{r}
+ggplot(soil, aes(x = SOM_percent, y = Ca_ppm, colour = Forest)) + 
+  geom_point() + 
+  theme_bw()
+```
+
+From looking at the data it appears there may be a weak positive relationship between SOM and Ca
+
+Can I guess the slope or y- intercept
+Slope c. 1000/53 = 18ish, y-int c. -5? 0? right around there
+
+What statistical model fits these data?
+Both response and predictor are continous so linear regression seems appropriate.
+
+Let's construct the model:
+
+```{r}
+SOM_CA_mod <- lm(Ca_ppm ~ SOM_percent, data = soil)
+```
+
+Now check the model assumptions before interpreting
+
+```{r}
+autoplot(SOM_CA_mod)
+```
+Based on my observations of the autoplot results, I'm modestly comfortable that my data meet the lm() assumptions
+
+Now look at model outcome
+```{r}
+anova(SOM_CA_mod)
+```
+```{r}
+summary(SOM_CA_mod)
+```
+
+Generate a figure from the results
+
+```{r}
+ggplot(soil, aes( x = SOM_percent, y = Ca_ppm))+
+     geom_point()+
+     geom_smooth(method = "lm")+
+    xlab("SOM percent") +
+    ylab("Calcium ppm")+
+     theme_bw()
+```
+
+Question 2:
+Does the abundance of worms differ between Donnerville and the Kip Tract?
+
+Data associated with the two previously mentioned locations needs to be isolated from the other forest locations.
+
+First check the levels to make sure there aren't any misspellings
+
+```{r}
+levels(soil$Forest)
+```
+all set.
+
+Now filter the data
+
+```{r}
+worms <- soil %>% filter(Forest == "DONNERVILLE" | Forest == "KIP TRACT") #filters the correct values
+worms$Forest <- factor(worms$Forest) #resets factor levels for subset
+```
+
+Plot the data and check for outliers
+
+```{r}
+ggplot(worms, aes(x = Worms)) +
+  geom_histogram()
+
+```
+
+Data looks fine (no errors).
+
+Group and summarize the data so it can be plotted
+
+```{r}
+totals <- worms %>% group_by(Forest) %>% summarise(total.worms = sum(Worms))
+```
+
+Use a bar graph to visualize the data because it has the exact count (not a mean)
+
+```{r}
+ggplot(totals, aes(x = Forest, y = total.worms))+
+     geom_bar(stat= "identity", position = "dodge")
+```
+The Kip Tract appears to have a lot more worms than Donnerville. A chi-square test makes the most sense because we are working with a categorical variable (forest) and a discrete variable (number of worms).
+
+Generate a matrix with the data we are comparing by using the xtabs() function.
+
+```{r}
+worm_matrix <- xtabs(Worms ~ Forest, data = worms)
+worm_matrix
+```
+The matrix contains the two forests and the number of worms at each location.
+
+Run the chi-square test
+
+```{r}
+chisq.test(worm_matrix)
+```
+The p-value is 0.0078 which means there is a significant difference between worm abundance, i.e the Kip Tract has significantly more worms than Donnerville. We can reject our null hypothesis that states there is no difference in worm abundance between these two locations.
+
+Question 3:
+Does the abundance of soil Magnesium (Mg_ppm) differ between Peavine and South Hammond?
+
+Filter the data so that we are looking at Peavine and South Hammond
+
+```{r}
+mg_pea_sh <- soil %>% filter(Forest == "PEAVINE" | Forest == "SOUTH HAMMOND")
+mg_pea_sh$Forest <- factor(mg_pea_sh$Forest)
+```
+
+Plot the data
+
+```{r}
+ggplot(mg_pea_sh, aes(x = Forest, y = Mg_ppm))+
+     geom_boxplot()+
+     geom_point(alpha = 0.5)
+```
+One data point visually looks like an outlier. Let's look at the dataset and see if it could actually be an outlier.
+
+```{r}
+mg_pea_sh$Mg_ppm
+```
+The suspected outlier is 121 but there is also a data point at 92 which makes me believe 121 is not an outlier.
+
+Replot the data as a histogram
+```{r}
+ggplot(mg_pea_sh, aes(x = Mg_ppm))+
+     geom_histogram(binwidth=10)+
+     facet_wrap(~Forest, ncol = 1)+
+     theme_bw()
+```
+We are comparing the same variable (mg_ppm) between two locations so we can run a t-test.
+
+```{r}
+t_test_mg<- t.test(Mg_ppm ~Forest, data = mg_pea_sh)
+```
+
+Check the assumptions
+
+```{r}
+autoplot(t_test_mg)
+```
+We can't reject the null hypothesis.
+
+Plot a better representation of the data
+
+```{r}
+ggplot(mg_pea_sh, aes(Forest, Mg_ppm))+
+     geom_boxplot()+
+     geom_point(position = "jitter", size = 2, alpha = 0.5)+
+     labs(y = "Magnesium, ppm")+
+     theme_bw()
+```
+
+Question 4:
+Does the abundance of zinc (Zn_ppm) differ among forests?
+
+Check the data
+```{r}
+summary(soil$Zn_ppm)
+```
+Potential outlier?
+
+Generate a histogram to visualize the data
+```{r}
+ggplot(soil, aes(x = Zn_ppm))+
+     geom_histogram()
+```
+Not bad. 
+
+Plot the data
+
+```{r}
+ggplot(soil, aes(Forest, Zn_ppm))+
+     geom_boxplot()+
+     geom_point(size = 2, alpha = 0.5, position = "jitter")
+```
+There are more than two levels for forests and the zinc is continuous. A one-way ANOVA is the way to go.
+
+```{r}
+Zn_model <- lm(Zn_ppm ~ Forest, data = soil)
+```
+
+Check the assumptions
+```{r}
+autoplot(Zn_model, smooth.color = NA)
+```
+Cool. Run the test.
+
+```{r}
+anova(Zn_model)
+```
+No significant difference.
+
+Check the summary
+```{r}
+summary(Zn_model)
+```
+
+Hi Erika, I am having trouble understanding the statistical aspect of using R which is why my homework is late. I have been watching a lot of videos and reading different forums to try to better understand. 
