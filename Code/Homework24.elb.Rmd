@@ -1,0 +1,113 @@
+---
+title: "Homework 24"
+output: html_notebook
+---
+
+# Introduction
+
+This assignment will walk through how to use R for statistical tests.
+With each statistical test, the following workflow will be followed:
+1. Plot your data
+2. Build your model
+3. Check your assumptions
+4. Interpret your model
+5. Replot the data and the model
+
+## Getting Set Up
+
+```{r}
+rm(list = ls())
+library(dplyr)
+library(ggplot2)
+library(here)
+```
+
+## Pulling in the data
+The first dataset being used is called 'ladybirds'.
+We will use it to run a Chi-squared contingency analysis.
+
+```{r}
+lady <- read.csv(here("Data", "ladybirds.csv"), stringsAsFactors = TRUE) 
+glimpse(lady) #checks out dataset
+```
+
+## Grouping the data for use
+The groupby() and summarise() functions are best for sorting the data into groups that we would like to explore further.
+
+```{r}
+totals <- lady %>%
+  group_by(Habitat, colour) %>%
+  summarise(total.number = sum(number))
+```
+
+## Generating the first figure 
+
+
+```{r}
+ggplot(totals, aes(x = Habitat, y = total.number, 
+                   fill = colour)) + 
+  geom_bar(stat = 'identity', position = 'dodge') #identity tells ggplot to not try to calculate anything from the data.
+#dodge tells R to provide two bars next to each other under each variable
+```
+
+### Fixing the colors
+
+There is a way to customize the colors of the bars. In this case we can make a bar black to match the black individuals in the dataset and the other bar can be red and correspond to the red individuals.
+
+```{r}
+ggplot(totals, aes(x = Habitat, y = total.number, 
+                   fill = colour)) +
+  geom_bar(stat = 'identity', position = 'dodge') +
+  scale_fill_manual(values = c(black = "black", red = "red"))
+```
+
+## Running a Chi-squared test
+
+MAYBE PUT SOME TEXT HERE ABOUT WHY IT IS A CHI-SQUARE TEST AND WHY YOU HAVE TO USE XTABS
+
+```{r}
+lady_mat <- xtabs(number ~ Habitat + colour,
+                  data = lady)
+lady_chi <- chisq.test(lady_mat)
+names(lady_chi)
+lady_chi$expected
+```
+
+## Running a T-test
+
+### Clear R's brain, activate packages and pull in correct dataset
+
+```{r}
+ozone <- read.csv(here("Data", "ozone.csv"))
+glimpse(ozone)
+```
+
+## Plot the data
+
+```{r}
+ggplot(ozone, aes(x = Ozone)) +
+  geom_histogram(binwidth = 10) +
+  facet_wrap(~ Garden.location, ncol = 1) +
+  theme_bw()
+```
+WHAT DO YOU SEE IN THE PLOT AND HOW MIGHT YOU GUESSTIMATE THE MEANS FOR THE TWO GROUPS?
+## Grouping the data
+
+```{r}
+totals <- ozone %>%
+  group_by(Garden.location, Garden.ID) %>%
+  summarise(total.number = sum(Ozone))
+```
+
+## Run a T-Test
+WHY IS A T-TEST APPROPRIATE? MAKE SOME NOTES.
+
+```{r}
+t.test(Ozone ~ Garden.location, data = ozone)
+```
+
+Another potential test to run:
+```{r}
+var.test(Ozone ~ Garden.location, data = ozone)
+```
+

@@ -1,0 +1,120 @@
+---
+title: "HW 25"
+output: html_notebook
+---
+
+# Introduction
+This assignment works through how linear regressions are use in R.
+
+## Getting set up
+Activate necessary packages and the function to clear R's brain.
+
+```{r}
+rm(list = ls())
+library(here)
+library(ggplot2)
+library(dplyr)
+```
+
+## Pull in the data
+
+```{r}
+plant_gr <- read.csv(here("Data", "plant.growth.rate.csv"))
+```
+
+## Check out the data
+
+```{r}
+glimpse(plant_gr)
+```
+
+## Generate a scatterplot
+
+```{r}
+ggplot(plant_gr,
+       aes(x = soil.moisture.content, y = plant.growth.rate)) +
+  geom_point() +
+  xlab("Soil moisture content") +
+  ylab("Plant Growth Rate (mm/week") +
+  theme_bw()
+```
+WHAT DO YOU SEE FROM THE SCATTERPLOT? CAN YOU GUESS THE SLOPE AND Y-INTERCEPT BEFORE YOU RUN THE MODEL? WHY IS A LINEAR REGRESSION THE APPROPRIATE TEST.
+
+## Create the first linear model
+
+```{r}
+model_pgr <- lm(plant.growth.rate ~ soil.moisture.content,
+                data = plant_gr) #hypothesizes that plant growth is a function of soil moisture.
+```
+
+## Activate new package and plot the lm
+
+```{r}
+library(ggfortify)
+autoplot(model_pgr, smooth.colour = NA)
+```
+WHAT DOES THIS TELL YOU? YOU SHOULD MAKE SOME NOTES
+## Interpret the data with an ANOVA
+
+```{r}
+anova(model_pgr) #runs the ANOVA
+```
+
+```{r}
+summary(model_pgr) #large F-value indicates that the error variance is small
+```
+
+## Plotting a linear regression
+
+```{r}
+ggplot(plant_gr, aes(x = soil.moisture.content, y = plant.growth.rate)) +
+  geom_point() +
+  geom_smooth(method = 'lm') +
+  ylab("Plant Growth Rate (mm/week)") +
+  theme_bw()
+```
+
+## Analysis of Variance: One-way ANOVA
+A different data set is being used for this piece. Clear R's brain and pull in a new data set.
+
+## Pulling in the data
+
+```{r}
+daphnia <- read.csv(here("Data", "Daphniagrowth.csv"))
+glimpse(daphnia)
+```
+
+## Visualize the data
+
+```{r}
+ggplot(daphnia, aes(x = parasite, y = growth.rate)) +
+  geom_boxplot() +
+  theme_bw() +
+  coord_flip() #flipping the coords lists out the specific parasites
+```
+AGAIN, WHAT DO YOU SEE FROM THE PLOT AND WHAT MIGHT YOU GUESS THE OUTCOME OF YOUR STATISTICAL TEST TO BE BEFORE YOU RUN IT?
+
+## Setting up the one-way ANOVA
+
+```{r}
+model_grow <- lm(growth.rate~parasite, data = daphnia)
+library(ggfortify) #activates package
+autoplot(model_grow, smooth.colour = NA) #checks assumptions
+```
+
+## Create the one-way ANOVA
+
+```{r}
+anova(model_grow) #has a significant result
+summary(model_grow) #shows intercept and the treatments
+```
+
+## Get the means of each treatment
+
+```{r}
+sumDat <- daphnia %>%
+  group_by(parasite) %>%
+  summarise(meanGR = mean(growth.rate))
+```
+
+YOUR CODE IS ALL FINE BUT I CAN'T TELL IF YOU ARE THINKING ABOUT WHAT YOU ARE DOING BECAUSE YOU HAVEN'T PROVIDED MUCH ANNOTATION TO THE CODE.
