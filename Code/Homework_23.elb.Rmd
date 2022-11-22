@@ -1,0 +1,74 @@
+---
+title: "Homework 23"
+output: html_notebook
+---
+
+## Introduction
+
+This exercise is to practice generating scatterplots, box plots, and histograms.
+
+### Getting Started
+Activate necessary packages
+
+```{r}
+rm(list = ls())
+library(here)
+library(dplyr)
+library(ggplot2)
+
+```
+
+Pull in the data
+
+```{r}
+soil <- read.csv(here("Data", "soil_data.csv"), stringsAsFactors = TRUE)
+glimpse(soil)
+```
+
+
+### Creating plots
+
+Scatterplot of SOM_percent
+
+```{r}
+ggplot(soil, aes(x = Field.Name, y = SOM_percent)) + geom_point(size = 5) + xlab("Field Name") + ylab("SOM Percent")+ theme_bw()
+```
+
+Box Plot for SOM_percent
+
+```{r}
+ggplot(soil, aes(x = Field.Name, y = SOM_percent)) + geom_boxplot() + geom_point(size = 3, colour = 'lightgrey', alpha = 0.5) + xlab("Field Name") + ylab("SOM Percent") + theme_bw()
+```
+
+Create a histogram for SOM Percent
+
+```{r}
+ggplot(soil, aes(x = SOM_percent)) + xlab("SOM Percent") + geom_histogram(bins = 10)
+```
+
+Create a scatterplot for Ca ppm
+
+```{r}
+ggplot(soil, aes(x = Field.Name, y = Ca.ppm)) + geom_point(size = 3) + xlab("Field Name") + ylab("Ca ppm") + theme_bw()
+```
+
+Create a boxplot for Ca ppm
+
+```{r}
+ggplot(soil, aes(x = Field.Name, y = "Ca.ppm")) + 
+  geom_boxplot() + geom_point(size = 4, colour = 'lightgrey', alpha = 0.5) + xlab("Field Name") + ylab("Ca ppm") + theme_bw()
+```
+
+Create a histogram for Ca ppm
+
+```{r}
+ggplot(soil, aes(x = Ca.ppm)) + geom_histogram(bins = 10) + xlab("Ca ppm")
+```
+
+THIS LOOKS GOOD, BUT YOU WERE SUPPOSSED TO MAKE A NEW COLUMN WITH JUST THE FOREST NAMES. HERE'S A SLICK WAY TO DO IT USING THE WORD() FUNCTION FROM STRINGR PACKAGE
+
+```{r}
+library(tidyverse)
+soil$Forest <- word(soil$Field.Name, 1)
+```
+
