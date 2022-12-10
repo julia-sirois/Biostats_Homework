@@ -1,0 +1,292 @@
+---
+title: "HW27.Rmd"
+author: "Julia Sirois"
+date: "11/14/2022"
+output: html_document
+---
+
+# Introduction
+This assignment will work through chapters 1 and 2 of the ggplot: elegant graphics for data analysis book
+
+## Getting started
+The book recommends installing a list of packages
+```{r}
+install.packages(c(
+  "colorBlindness", "directlabels", "dplyr", "ggforce", "gghighlight", 
+  "ggnewscale", "ggplot2", "ggraph", "ggrepel", "ggtext", "ggthemes", 
+  "hexbin", "Hmisc", "mapproj", "maps", "munsell", "ozmaps", 
+  "paletteer", "patchwork", "rmapshaper", "scico", "seriation", "sf", 
+  "stars", "tidygraph", "tidyr", "wesanderson" 
+))
+```
+
+## Pulling in data
+```{r}
+library(ggplot2)
+mpg
+```
+
+## Looking at the data
+Check out a scatterplot using the displ and hwy variables
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) + 
+  geom_point()
+```
+
+## Describing data
+
+1. How would you describe the relationship between cty and hwy? Do you have any concerns about drawing conclusions from that plot?
+
+cty and hwy are different measures for mpg I think this relationship could appear to have a positive linear correlation.
+
+2. What does ggplot(mpg, aes(model, manufacturer)) + geom_point() show? Is it useful? How could you modify the data to make it more informative?
+
+The scatterplot for model and manufacturer is showing the relationship between the models and manufacturers. I dont think this is useful because we know that models of cars are related to the manufacturer that designs them. It could be interesting to add colors for each manufacturer.
+
+Describe the data, aesthetic mappings and layers used for each of the following plots. You’ll need to guess a little because you haven’t seen all the datasets and functions yet, but use your common sense! See if you can predict what the plot will look like before running the code.
+
+1. ggplot(mpg, aes(cty, hwy)) + geom_point()
+I think this will be a scatterplot
+
+2. ggplot(diamonds, aes(carat, price)) + geom_point()
+I think this will be a scatterplot
+
+3.ggplot(economics, aes(date, unemploy)) + geom_line()
+this will be a line graph
+
+4.ggplot(mpg, aes(cty)) + geom_histogram()
+This will be a histogram
+
+### Plot them
+```{r}
+ggplot(mpg, aes(cty, hwy)) + geom_point()
+```
+
+```{r}
+ggplot(diamonds, aes(carat, price)) + geom_point()
+```
+
+```{r}
+ggplot(economics, aes(date, unemploy)) + geom_line()
+```
+
+```{r}
+ggplot(mpg, aes(cty)) + geom_histogram()
+```
+
+We can add colors to the plots by saying "color = (variable)"
+```{r}
+ggplot(mpg, aes(displ, hwy, colour = class)) + 
+  geom_point()
+```
+
+Let's use colors again in two different ways that will result in different plots. We want the color argument inside the aes() function
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) + geom_point(aes(colour = "blue"))
+ggplot(mpg, aes(displ, hwy)) + geom_point(colour = "blue")
+```
+
+### Practice faceting
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point() + 
+  facet_wrap(~class)
+```
+
+### Facet Exercises
+
+1. What happens if you try to facet by a continuous variable like hwy? What about cyl? What’s the key difference?
+
+When using hwy there are a lot of small plots, each with only a couple points. When using cyl there are four plots but they are very abnormal in distribution and shape.
+
+Use faceting to explore the 3-way relationship between fuel economy, engine size, and number of cylinders. How does faceting by number of cylinders change your assessment of the relationship between engine size and fuel economy?
+
+This will cause a direct comparison between the fuel economy and engine size according to parameters set by the number of cylinders.
+
+Read the documentation for facet_wrap(). What arguments can you use to control how many rows and columns appear in the output?
+
+nrow and ncol
+
+What does the scales argument to facet_wrap() do? When might you use it?
+
+The scales argument determines whether the scale is fixed or free. This could be applicable if someone wanted to visualize specific increments for a dataset. 
+
+2.6.1 Adding a smoother to a plot
+```{r}
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point() + 
+  geom_smooth()
+#> `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+```
+
+method = "loess", the default for small n, uses a smooth local regression (as described in ?loess). The wiggliness of the line is controlled by the span parameter, which ranges from 0 (exceedingly wiggly) to 1 (not so wiggly).
+```{r}
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point() + 
+  geom_smooth(span = 0.2)
+#> `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point() + 
+  geom_smooth(span = 1)
+#> `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+```
+
+method = "gam" fits a generalised additive model provided by the mgcv package. You need to first load mgcv, then use a formula like formula = y ~ s(x) or y ~ s(x, bs = "cs") (for large data). This is what ggplot2 uses when there are more than 1,000 points.
+
+```{r}
+library(mgcv)
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point() + 
+  geom_smooth(method = "gam", formula = y ~ s(x))
+```
+
+method = "lm" fits a linear model, giving the line of best fit.
+```{r}
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point() + 
+  geom_smooth(method = "lm")
+#> `geom_smooth()` using formula 'y ~ x'
+```
+
+2.6.2 Boxplots and jittered points
+
+```{r}
+ggplot(mpg, aes(drv, hwy)) + 
+  geom_point()
+```
+
+Jittering, boxplots, and violin plots
+```{r}
+ggplot(mpg, aes(drv, hwy)) + geom_jitter()
+ggplot(mpg, aes(drv, hwy)) + geom_boxplot()
+ggplot(mpg, aes(drv, hwy)) + geom_violin()
+```
+
+For jittered points, geom_jitter() offers the same control over aesthetics as geom_point(): size, colour, and shape. For geom_boxplot() and geom_violin(), you can control the outline colour or the internal fill colour.
+
+2.6.3 Histograms and frequency polygons
+
+These show the distribution of a single numeric variable
+
+```{r}
+ggplot(mpg, aes(hwy)) + geom_histogram()
+#> `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+ggplot(mpg, aes(hwy)) + geom_freqpoly()
+#> `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+```
+
+histograms use bars and frequency polygons use lines
+
+
+Binwidth is important 
+```{r}
+ggplot(mpg, aes(hwy)) + 
+  geom_freqpoly(binwidth = 2.5)
+ggplot(mpg, aes(hwy)) + 
+  geom_freqpoly(binwidth = 1)
+```
+
+
+Using colors:
+
+```{r}
+ggplot(mpg, aes(displ, colour = drv)) + 
+  geom_freqpoly(binwidth = 0.5)
+ggplot(mpg, aes(displ, fill = drv)) + 
+  geom_histogram(binwidth = 0.5) + 
+  facet_wrap(~drv, ncol = 1)
+```
+
+2.6.4 Bar charts
+
+```{r}
+ggplot(mpg, aes(manufacturer)) + 
+  geom_bar()
+```
+
+best for unsummarized data
+```{r}
+drugs <- data.frame(
+  drug = c("a", "b", "c"),
+  effect = c(4.2, 9.7, 6.1)
+)
+```
+
+bar vs point
+```{r}
+ggplot(drugs, aes(drug, effect)) + geom_bar(stat = "identity")
+ggplot(drugs, aes(drug, effect)) + geom_point()
+```
+
+2.6.5 Time series with line and path plots
+
+Used for series data
+
+```{r}
+ggplot(economics, aes(date, unemploy / pop)) +
+  geom_line()
+ggplot(economics, aes(date, uempmed)) +
+  geom_line()
+```
+
+Path plots
+
+```{r}
+ggplot(economics, aes(unemploy / pop, uempmed)) + 
+  geom_path() +
+  geom_point()
+
+year <- function(x) as.POSIXlt(x)$year + 1900
+ggplot(economics, aes(unemploy / pop, uempmed)) + 
+  geom_path(colour = "grey50") +
+  geom_point(aes(colour = year(date)))
+```
+
+Modifying the axes
+```{r}
+ggplot(mpg, aes(cty, hwy)) +
+  geom_point(alpha = 1 / 3)
+
+ggplot(mpg, aes(cty, hwy)) +
+  geom_point(alpha = 1 / 3) + 
+  xlab("city driving (mpg)") + 
+  ylab("highway driving (mpg)")
+
+# Remove the axis labels with NULL
+ggplot(mpg, aes(cty, hwy)) +
+  geom_point(alpha = 1 / 3) + 
+  xlab(NULL) + 
+  ylab(NULL)
+```
+
+xlim() and ylim() change the axis limits
+```{r}
+ggplot(mpg, aes(drv, hwy)) +
+  geom_jitter(width = 0.25)
+
+ggplot(mpg, aes(drv, hwy)) +
+  geom_jitter(width = 0.25) + 
+  xlim("f", "r") + 
+  ylim(20, 30)
+  
+# use NA to set only one limit when scale is continuous
+ggplot(mpg, aes(drv, hwy)) +
+  geom_jitter(width = 0.25, na.rm = TRUE) + 
+  ylim(NA, 30)
+```
+
+Output
+```{r}
+p <- ggplot(mpg, aes(displ, hwy, colour = factor(cyl))) +
+  geom_point()
+```
+
+You can use print() to display the output, save it to your disk using ggsave(), or see the summary using summary()
+```{r}
+print(p)
+summary(p)
+```
+
